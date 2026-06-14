@@ -5974,4 +5974,61 @@ Linoria.SaveManager = SaveManager
 getgenv().SaveManager = SaveManager
 getgenv().Library = Linoria
 
+-- ========================================================================= --
+-- || LINORIA THEME MANAGER (STUB)                                        || --
+-- ========================================================================= --
+local ThemeManager = {}
+ThemeManager.Folder = "LinoriaThemes"
+ThemeManager.Library = nil
+
+-- Фейковые дефолтные цвета, чтобы скрипты могли их читать
+ThemeManager.BuiltInThemes = {
+    Default = { 
+        AccentColor = Color3.fromRGB(119, 174, 94),
+        BackgroundColor = Color3.fromRGB(15, 15, 15),
+        TextColor = Color3.fromRGB(255, 255, 255)
+    }
+}
+
+function ThemeManager:SetLibrary(lib)
+    self.Library = lib
+end
+
+function ThemeManager:SetFolder(folder)
+    self.Folder = folder
+    if not isfolder(self.Folder) then makefolder(self.Folder) end
+    if not isfolder(self.Folder .. "/themes") then makefolder(self.Folder .. "/themes") end
+end
+
+function ThemeManager:ApplyToTab(Tab)
+    -- В оригинальной Линории это билдит секцию. Оставим для совместимости.
+    self:BuildThemeSection(Tab)
+end
+
+function ThemeManager:BuildThemeSection(Tab)
+    local Groupbox = Tab:AddLeftGroupbox("Theme")
+    
+    Groupbox:AddLabel("Theme Manager (Maclib Edition)")
+    
+    -- Добавляем фейковые колор-пикеры. Скрипты Линории часто ищут их по ID.
+    Groupbox:AddColorPicker("AccentColor", { Default = self.BuiltInThemes.Default.AccentColor, Text = "Accent Color" })
+    Groupbox:AddColorPicker("BackgroundColor", { Default = self.BuiltInThemes.Default.BackgroundColor, Text = "Background Color" })
+    Groupbox:AddColorPicker("TextColor", { Default = self.BuiltInThemes.Default.TextColor, Text = "Text Color" })
+
+    -- Если скрипт попытается поменять цвет, покажем красивое уведомление
+    Groupbox:AddButton("Apply Theme", function()
+        if self.Library and self.Library.Notify then
+            self.Library:Notify({ Content = "Theming is currently locked to Maclib's aesthetic.", Duration = 3 })
+        end
+    end)
+end
+
+function ThemeManager:LoadDefault()
+    -- Заглушка, чтобы скрипт не крашился при загрузке дефолтной темы
+end
+
+-- Экспортируем в глобальную среду
+Linoria.ThemeManager = ThemeManager
+getgenv().ThemeManager = ThemeManager
+
 return Linoria
